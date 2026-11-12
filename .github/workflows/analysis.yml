@@ -1,0 +1,23 @@
+name: Time-series analysis smoke test
+on:
+  pull_request:
+  push:
+    branches: ["fix/**"]
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pandas numpy matplotlib seaborn statsmodels scipy
+      - name: Run historical analysis from repository root
+        run: python scripts/onion_analysis.py
+      - name: Check expected figures
+        run: |
+          test -f visualizations/1_raw_time_series.png
+          test -f visualizations/2_decomposition.png
