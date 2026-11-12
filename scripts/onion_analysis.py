@@ -8,6 +8,7 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from itertools import product
 import warnings
 import json
+from pathlib import Path
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
@@ -17,8 +18,11 @@ from pandas.plotting import lag_plot
 
 warnings.filterwarnings("ignore")
 
-DATA_FILE = r'../data/onion_monthly.csv'
-RESULTS_FILE = r'../data/forecast_results.json'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_FILE = PROJECT_ROOT / "data" / "onion_monthly.csv"
+RESULTS_FILE = PROJECT_ROOT / "data" / "forecast_results.json"
+VISUAL_DIR = PROJECT_ROOT / "visualizations"
+VISUAL_DIR.mkdir(parents=True, exist_ok=True)
 
 # --- ULTRAMODERN VISUALIZATION ENGINE (Global Scope) ---
 def apply_cyberpunk_style():
@@ -67,7 +71,7 @@ def run_analysis():
     plot_glowing_line(ax, df.index, df['Modal_Price'], color='#00f0ff', label='Modal Price')
     plt.title('ONION PRICE HISTORY: THE PULSE', fontsize=16, color='#fff')
     plt.fill_between(df.index, df['Modal_Price'], color='#00f0ff', alpha=0.1) # Underglow
-    plt.savefig('../visualizations/1_raw_time_series.png', dpi=300, bbox_inches='tight')
+    plt.savefig(str(VISUAL_DIR / "1_raw_time_series.png"), dpi=300, bbox_inches='tight')
     plt.close()
 
     # Decomposition (Neon)
@@ -91,7 +95,7 @@ def run_analysis():
     
     plt.suptitle('SEASONAL DECOMPOSITION OF TIME SERIES (STL)', fontsize=16, color='white')
     plt.tight_layout()
-    plt.savefig('../visualizations/2_decomposition.png', dpi=300, bbox_inches='tight')
+    plt.savefig(str(VISUAL_DIR / "2_decomposition.png"), dpi=300, bbox_inches='tight')
     plt.close()
 
     # 1. Smoothing Technique (Section 2)
@@ -107,7 +111,7 @@ def run_analysis():
     except: pass 
     plt.title('SIGNAL EXTRACTION: HOLT-WINTERS FILTER', fontsize=16)
     plt.legend(facecolor='#050510', edgecolor='#00f0ff')
-    plt.savefig('../visualizations/1_smoothing_technique.png', dpi=300, bbox_inches='tight')
+    plt.savefig(str(VISUAL_DIR / "1_smoothing_technique.png"), dpi=300, bbox_inches='tight')
     plt.close()
 
     # 1.1 SMA vs EMA vs Holt-Winters (Syllabus Progression)
@@ -128,7 +132,7 @@ def run_analysis():
     plt.title('SMOOTHING EVOLUTION: SMA vs EMA vs HOLT-WINTERS', fontsize=16, color='white')
     plt.legend(facecolor='#050510', edgecolor='#00f0ff')
     plt.grid(True, alpha=0.2)
-    plt.savefig('../visualizations/1_sma_ema_hw.png', dpi=300, bbox_inches='tight')
+    plt.savefig(str(VISUAL_DIR / "1_sma_ema_hw.png"), dpi=300, bbox_inches='tight')
     plt.close()
     
     # 7. Seasonal Heatmap
@@ -139,7 +143,7 @@ def run_analysis():
     plt.figure(figsize=(14, 8))
     sns.heatmap(pivot_table, cmap='cool', annot=False, fmt=".0f", cbar_kws={'label': 'Price'})
     plt.title('ONION PRICE HEATMAP (MONTH VS YEAR)', color='white', fontsize=16)
-    plt.savefig('../visualizations/7_heatmap.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "7_heatmap.png"), facecolor='#050510')
     plt.close()
 
     # 8. Monthly Boxplot
@@ -148,7 +152,7 @@ def run_analysis():
     sns.boxplot(x='Month', y='Modal_Price', data=df, palette='cool')
     plt.title('MONTHLY PRICE DISTRIBUTION (SEASONALITY CHECK)', color='white', fontsize=16)
     plt.grid(True, alpha=0.2, color='#2a2a40')
-    plt.savefig('../visualizations/8_boxplot.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "8_boxplot.png"), facecolor='#050510')
     plt.close()
 
     # 9. Rolling Statistics
@@ -162,7 +166,7 @@ def run_analysis():
     plot_glowing_line(ax, df.index, roll_std, color='#00ff00', label='Rolling Std (12m)')
     plt.legend(facecolor='#050510', edgecolor='#00f0ff')
     plt.title('ROLLING MEAN & STANDARD DEVIATION', color='white', fontsize=16)
-    plt.savefig('../visualizations/9_rolling_stats.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "9_rolling_stats.png"), facecolor='#050510')
     plt.close()
 
     # Clean up temp columns
@@ -187,7 +191,7 @@ def run_analysis():
     ax.zaxis.set_pane_color((0,0,0,0))
     ax.tick_params(colors='#00f0ff')
     plt.title('VOLATILITY TOPOLOGY (3D)', fontsize=16, color='white')
-    plt.savefig('../visualizations/10_3d_surface.png', dpi=300, bbox_inches='tight')
+    plt.savefig(str(VISUAL_DIR / "10_3d_surface.png"), dpi=300, bbox_inches='tight')
     plt.close()
 
     # 15. Polar Seasonal Plot
@@ -206,7 +210,7 @@ def run_analysis():
     ax.set_xticks(theta)
     ax.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], fontsize=12)
     plt.title("Polar Seasonality Clock (The Crisis Window)", color='white', fontsize=16, pad=20)
-    plt.savefig('../visualizations/15_polar_seasonality.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "15_polar_seasonality.png"), facecolor='#050510')
     plt.close()
 
     # 16. Violin Plot
@@ -216,7 +220,7 @@ def run_analysis():
     sns.violinplot(x='Month', y='Modal_Price', data=df, palette='cool', inner='quartile')
     plt.title('Monthly Price Density (Violin Plot) - Fat Tails in Nov', fontsize=16, color='white')
     plt.grid(True, alpha=0.2, color='#2a2a40')
-    plt.savefig('../visualizations/16_violin_distribution.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "16_violin_distribution.png"), facecolor='#050510')
     plt.close()
 
     # 17. Price Histogram
@@ -227,9 +231,9 @@ def run_analysis():
     kurtosis = df['Modal_Price'].kurtosis()
     plt.title(f'Price Distribution: Skewness={skewness:.2f}, Kurtosis={kurtosis:.2f}', fontsize=16, color='white')
     plt.xlabel('Price (INR/Quintal)', color='cyan')
-    plt.savefig('../visualizations/17_price_histogram.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "17_price_histogram.png"), facecolor='#050510')
     plt.xlabel('Price (INR/Quintal)', color='cyan')
-    plt.savefig('../visualizations/17_price_histogram.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "17_price_histogram.png"), facecolor='#050510')
     plt.close()
 
     # 18. Seasonal Subseries Plot (New)
@@ -246,9 +250,9 @@ def run_analysis():
     
     plt.title('SEASONAL SUBSERIES PLOT: MONTHLY VOLATILITY SPREAD', fontsize=16, color='white')
     plt.grid(True, alpha=0.2, color='#2a2a40')
-    plt.savefig('../visualizations/18_seasonal_subseries.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "18_seasonal_subseries.png"), facecolor='#050510')
     plt.grid(True, alpha=0.2, color='#2a2a40')
-    plt.savefig('../visualizations/18_seasonal_subseries.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "18_seasonal_subseries.png"), facecolor='#050510')
     plt.close()
 
     # 19. Rolling RMSE (Cross-Validation)
@@ -270,7 +274,7 @@ def run_analysis():
     plt.xlabel('Training Window Size (Months)', color='cyan')
     plt.ylabel('RMSE (Root Mean Squared Error)', color='cyan')
     plt.grid(True, alpha=0.2)
-    plt.savefig('../visualizations/19_rolling_rmse.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "19_rolling_rmse.png"), facecolor='#050510')
     plt.close()
 
     # 20. Squared Residuals (Volatility Clustering)
@@ -285,7 +289,7 @@ def run_analysis():
     plt.title('VOLATILITY CLUSTERING (ARCH EFFECTS)', fontsize=16, color='white')
     plt.ylabel('Squared Residuals (Variance)', color='cyan')
     plt.grid(True, alpha=0.2)
-    plt.savefig('../visualizations/20_volatility_clustering.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "20_volatility_clustering.png"), facecolor='#050510')
     plt.close()
     
     if 'Month_Name' in df.columns: df.drop('Month_Name', axis=1, inplace=True)
@@ -306,7 +310,7 @@ def run_analysis():
     plt.xlabel('Price(t-1)', color='cyan')
     plt.ylabel('Price(t)', color='cyan')
     plt.grid(True, alpha=0.1, color='#2a2a40')
-    plt.savefig('../visualizations/13_phase_space.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "13_phase_space.png"), facecolor='#050510')
     plt.close()
 
     # 11. Periodogram
@@ -322,7 +326,7 @@ def run_analysis():
     plt.axvline(x=1, color='cyan', linestyle='--', linewidth=1, alpha=0.8)
     plt.text(1.02, max(spectrum)*0.9, 'ANNUAL CYCLE (1/Yr)', color='cyan', fontweight='bold')
     plt.grid(True, alpha=0.1)
-    plt.savefig('../visualizations/11_periodogram.png', facecolor='#050510')
+    plt.savefig(str(VISUAL_DIR / "11_periodogram.png"), facecolor='#050510')
     plt.close()
 
     # 12. Lag Plot Matrix
@@ -346,7 +350,7 @@ def run_analysis():
         
     plt.suptitle('AUTOCORRELATION MATRIX: MARKET MEMORY', fontsize=20, color='white', y=1.02)
     plt.tight_layout()
-    plt.savefig('../visualizations/12_lag_plots.png', facecolor='#050510', bbox_inches='tight')
+    plt.savefig(str(VISUAL_DIR / "12_lag_plots.png"), facecolor='#050510', bbox_inches='tight')
     plt.close()
 
     # 2. Differenced Plot
@@ -361,7 +365,7 @@ def run_analysis():
     plot_glowing_line(ax, df_diff.index, df_diff, color='#ffff00', label='Delta Price')
     plt.title('FIRST DIFFERENCING (STATIONARY NOISE)', fontsize=16, color='white')
     plt.axhline(0, color='white', linestyle='--', alpha=0.5)
-    plt.savefig('../visualizations/3_differenced_series.png', facecolor='#050510', bbox_inches='tight')
+    plt.savefig(str(VISUAL_DIR / "3_differenced_series.png"), facecolor='#050510', bbox_inches='tight')
     plt.close()
 
     if p_val > 0.05:
@@ -381,7 +385,7 @@ def run_analysis():
     ax[0].set_title('Autocorrelation (ACF)', color='white')
     ax[1].set_title('Partial Autocorrelation (PACF)', color='white')
     fig.patch.set_facecolor('#050510')
-    plt.savefig('../visualizations/4_acf_pacf.png')
+    plt.savefig(str(VISUAL_DIR / "4_acf_pacf.png"))
     plt.close()
 
     # 4. Grid Search for SARIMA (Simplified for speed)
@@ -422,7 +426,7 @@ def run_analysis():
 
         plt.suptitle('SARIMA MODEL DIAGNOSTICS: RESIDUAL ANALYSIS', fontsize=16, color='white', y=0.95)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95]) # Adjust layout to prevent title overlap
-        plt.savefig('../visualizations/5_model_diagnostics.png', dpi=300)
+        plt.savefig(str(VISUAL_DIR / "5_model_diagnostics.png"), dpi=300)
         plt.close()
 
         # Ljung-Box Test (Syllabus Requirement)
@@ -483,7 +487,7 @@ def run_analysis():
         ax.yaxis.set_tick_params(colors='white')
         ax.zaxis.set_tick_params(colors='white')
         
-        plt.savefig('../visualizations/21_3d_seasonality_evolution.png', dpi=300, bbox_inches='tight', facecolor='#050510')
+        plt.savefig(str(VISUAL_DIR / "21_3d_seasonality_evolution.png"), dpi=300, bbox_inches='tight', facecolor='#050510')
         plt.close()
     except Exception as e:
         print(f"Failed to generate 3D Seasonality plot: {e}")
@@ -516,8 +520,8 @@ def run_analysis():
         plt.legend(facecolor='#050510', edgecolor='#00f0ff', fontsize=10, loc='upper left')
         plt.grid(True, alpha=0.2, color='#2a2a40')
         plt.tight_layout()
-        plt.savefig('../visualizations/14_fan_chart.png', dpi=300, bbox_inches='tight')
-        plt.savefig('../visualizations/6_forecast_result.png', dpi=300, bbox_inches='tight')
+        plt.savefig(str(VISUAL_DIR / "14_fan_chart.png"), dpi=300, bbox_inches='tight')
+        plt.savefig(str(VISUAL_DIR / "6_forecast_result.png"), dpi=300, bbox_inches='tight')
         plt.close()
         
         # Save JSON
