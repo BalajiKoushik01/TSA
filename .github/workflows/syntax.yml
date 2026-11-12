@@ -1,0 +1,24 @@
+name: Python syntax checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile analysis sources
+        run: python -m compileall -q scripts
+      - name: Verify the input path exists
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root = Path.cwd()
+          assert (root / "data" / "onion_monthly.csv").is_file()
+          assert (root / "scripts" / "onion_analysis.py").is_file()
+          print("Input file and source present")
+          PY
