@@ -34,3 +34,7 @@ Open `FINAL_WORKING_PRESENTATION.html` in a modern browser to read the presentat
 The plotted forecast and diagnostics describe the historical dataset and modelling choices. Forecasts, confidence bounds and seasonal patterns are **not** guarantees of future onion prices. To reproduce a reported number, verify the data range, train/test split, fitted model, forecast date and diagnostic results.
 
 No claim is made here that the model remains accurate on current market data.
+
+## Genuine forecast-error validation
+
+The `19_rolling_rmse.png` chart uses an **observed expanding-window seasonal-naive baseline**, evaluated one month ahead at each available month after at least 24 months of history. Each prediction uses only the price 12 months earlier; its cumulative RMSE is calculated from observed forecast errors. Unlike the previous plot, it contains **no synthetic or randomly generated accuracy trend**. This assesses a transparent baseline, not the SARIMA/other fitted model shown elsewhere. It does not prove the fitted model generalizes. Regression tests: `python -m unittest discover -s tests -v`.

@@ -1,4 +1,5 @@
 from pathlib import Path
+from forecast_validation import rolling_seasonal_naive_rmse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -256,24 +257,18 @@ def run_analysis():
     plt.savefig(VIS_DIR / '18_seasonal_subseries.png', facecolor='#050510')
     plt.close()
 
-    # 19. Rolling RMSE (Cross-Validation)
-    print("Generating 19_rolling_rmse.png...")
-    # Simulate a rolling forecast validation
-    rmse_values = []
-    dates = []
-    # Simplified simulation for visual purposes as full CV takes too long
-    # We create a synthetic "learning curve" that improves over time
-    for i in range(12, 48):
-        # Synthetic RMSE that decreases as data grows (Simulated)
-        rmse = 500 * np.exp(-0.05 * i) + np.random.normal(0, 20)
-        rmse_values.append(rmse)
-        dates.append(i)
-    
+    # 19. Expanding-window, one-step-ahead seasonal-naive baseline
+    # Only uses prices from previous months; does not use random or future values.
+    print("Generating 19_rolling_rmse.png from observed one-step forecast errors...")
+    train_sizes, rmse_values = rolling_seasonal_naive_rmse(
+        df['Modal_Price'].to_numpy(), season_length=12, min_history=24
+    )
+
     plt.figure(figsize=(12, 6))
-    plt.plot(dates, rmse_values, color='#00ff00', linewidth=2, marker='o')
-    plt.title('MODEL STABILITY: ROLLING CROSS-VALIDATION (RMSE)', fontsize=16, color='white')
-    plt.xlabel('Training Window Size (Months)', color='cyan')
-    plt.ylabel('RMSE (Root Mean Squared Error)', color='cyan')
+    plt.plot(df.index[train_sizes], rmse_values, color='#00ff00', linewidth=2)
+    plt.title('OBSERVED EXPANDING-WINDOW RMSE: SEASONAL-NAIVE BASELINE', fontsize=14, color='white')
+    plt.xlabel('Forecast target month', color='cyan')
+    plt.ylabel('Cumulative one-step RMSE (INR/Quintal)', color='cyan')
     plt.grid(True, alpha=0.2)
     plt.savefig(VIS_DIR / '19_rolling_rmse.png', facecolor='#050510')
     plt.close()
